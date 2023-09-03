@@ -15,6 +15,7 @@ class ViewController: UIViewController {
     var countries = [String]()
     var score = 0
     var correctAnswer = 0
+    var questionsAsked = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +34,8 @@ class ViewController: UIViewController {
     }
 
     func askQuestion(acton: UIAlertAction! = nil){
+        questionsAsked += 1
+        
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
         
@@ -40,24 +43,58 @@ class ViewController: UIViewController {
         button2.setImage(UIImage(named: countries[1]), for: .normal)
         button3.setImage(UIImage(named: countries[2]), for: .normal)
         
-        title = countries[correctAnswer].uppercased()
+        title = "\(countries[correctAnswer].uppercased())       Score: \(score)"
+    }
+    
+    //            challenge 2 of day 21
+    func showFinalScore(action: UIAlertAction! = nil) {
+        let ac = UIAlertController(title: "Final Score", message: "Your final score: \(score)", preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "Restart", style: .default, handler: askQuestion))
+        present(ac, animated: true)
+        
+        // reset game stats
+        questionsAsked = 0
+        score = 0
+    }
+    
+    func updateTitle() {
+//        challenge 1 of day 21
+        title = "\(countries[correctAnswer].uppercased())       Score: \(score)"
     }
     
     @IBAction func buttonTapped(_ sender: UIButton) {
         var title: String
+        var message: String
         
         if sender.tag == correctAnswer {
             title = "Correct"
             score += 1
+            message = """
+            Nice Job!
+            """
         } else {
             title = "Incorrect"
-            score -= 1
+//            score -= 1
+            
+//            challenge 3 of day 21
+            message = """
+            You selected the flag of \(countries[sender.tag].uppercased())!
+            """
         }
         
-        let ac = UIAlertController(title: title, message: "Score: \(score)", preferredStyle: .alert)
-        ac.addAction(UIAlertAction(title: "Continue", style: .default, handler: askQuestion))
+        updateTitle()
         
+        let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        if questionsAsked < 10 {
+            ac.addAction(UIAlertAction(title: "Continue", style: .default, handler: askQuestion))
+        } else {
+            ac.addAction(UIAlertAction(title: "See Final Score", style: .default, handler: showFinalScore))
+        }
+    
         present(ac, animated: true)
     }
+    
+    
 }
 
